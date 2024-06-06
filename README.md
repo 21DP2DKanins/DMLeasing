@@ -9,10 +9,11 @@ DMLeasing ir līzinga vadības sistēma, kas izstrādāta, lai automatizētu lī
 - [Instalācija](#instalācija)
 - [Palaist](#palaist)
 - [Izstrādes rīki](#izstrādes-rīki)
-- [Licence](#licence)
+  
 
 ## Prasības
 - Python 3.8+
+- MongoDB 4.4+
 
 ## Instalācija
 
@@ -20,3 +21,24 @@ DMLeasing ir līzinga vadības sistēma, kas izstrādāta, lai automatizētu lī
 ```bash
 git clone https://github.com/username/DMLeasing.git
 cd DMLeasing
+
+
+Atkaribu instalesana
+
+Backend
+
+Instalejiet nepieciesamos pakotnes:
+pip install -r requirements.txt
+
+## Izstrādes riki
+
+Backend
+- MongoDB
+- Python
+
+Frontend
+- HTML
+- CSS
+- JavaScript
+
+

@@ -24,6 +24,8 @@ contact = db.contact
 users = db.users
 tokenlist = db.tokenlist
 
+favorites = db.favorites
+
 def generate_token(email):
     token = jwt.encode({'email': email, 'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1)}, app.secret_key, algorithm='HS256')
     tokenlist.insert_one({'token': token})
@@ -102,6 +104,59 @@ def logout():
         return response
     else:
         return jsonify({'message': 'Token missing'}), 400
+
+@app.route('/add-favorite', methods=['POST'])
+def add_favorite():
+    data = request.get_json()
+    user_email = data.get('email')
+    car_id = data.get('car_id')
+
+    if not user_email or not car_id:
+        return jsonify({"error": "Email and Job ID are required"}), 400
+
+    favorite = {
+        'email': user_email,
+        'car_id': car_id
+    }
+
+    # Add the favorite to the Favorites collection
+    db.favorites.insert_one(favorite)
+    return jsonify({"message": "Favorite added successfully"}), 201
+
+@app.route('/favorites', methods=['POST'])
+def get_favorites():
+    data = request.get_json()
+    user_email = data.get('email')
+
+    if not user_email:
+        return jsonify({"error": "Email is required"}), 400
+
+    # Find all favorite job IDs for the user
+    favorites = db.favorites.find({'email': user_email})
+    car_ids = [favorite['car_id'] for favorite in favorites]
+
+    # Find job details for each favorite job ID
+    favorite_jobs = list(db.cars.find({'_id': {'$in': [ObjectId(car_id) for car_id in car_ids]}}))
+
+    return json_util.dumps(favorite_jobs), 200
+
+@app.route('/delete-favorite', methods=['DELETE'])
+def delete_favorite():
+    data = request.get_json()
+    user_email = data.get('email')
+    car_id = data.get('car_id')
+
+    if not user_email or not car_id:
+        return jsonify({"error": "Email and Car ID are required"}), 400
+
+    favorite = {
+        'email': user_email,
+        'car_id': car_id
+    }
+
+    # Delete the favorite from the Favorites collection
+    db.favorites.delete_one(favorite)
+    return jsonify({"message": "Favorite deleted successfully"}), 200
 
 if __name__ == '__main__':
     app.run(debug=True)

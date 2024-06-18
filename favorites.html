@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Favorites</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+      /* Global styles */
+      body {
+          font-family: Arial, sans-serif;
+          margin: 0;
+          padding: 0;
+          background-color: #f0f0f0;
+      }
+  
+      .wrapper {
+          display: flex;
+          flex-direction: column;
+          min-height: 100vh;
+      }
+  
+      .container {
+          width: 90%;
+          margin: 0 auto;
+      }
+  
+      /* Header styles */
+      .header{
+  background-color: #000000;
+}
+  
+      .header__inner {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+      }
+  
+      .menu__list {
+          list-style-type: none;
+          margin: 0;
+          padding: 0;
+          display: flex;
+      }
+  
+      .menu__list-item {
+          margin-right: 20px;
+      }
+  
+      .menu__list-link {
+          text-decoration: none;
+          color: #ffffff;
+          font-weight: bold;
+      }
+  
+      .menu__list-link--active {
+          color: #007bff;
+      }
+  
+      .logo__img {
+          width: 100px; /* Adjust as needed */
+      }
+  
+      /* Main styles */
+      .main {
+          flex: 1;
+      }
+  
+      .section-title {
+          margin-top: 40px;
+          margin-bottom: 20px;
+          font-size: 24px;
+      }
+  
+      .favorites__content {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 20px;
+      }
+  
+      /* Card styles */
+      .card {
+          border: 1px solid #ccc;
+          border-radius: 8px;
+          overflow: hidden;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          transition: transform 0.3s ease-in-out;
+          background-color: #fff;
+      }
+  
+      .card:hover {
+          transform: translateY(-5px);
+      }
+  
+      .card img {
+          width: 100%;
+          height: auto;
+          display: block;
+          border-bottom: 1px solid #eee;
+      }
+  
+      .card-details {
+          padding: 10px;
+      }
+  
+      .card-details h3 {
+          margin-top: 10px;
+          margin-bottom: 5px;
+          font-size: 18px;
+      }
+  
+      .card-details p {
+          margin: 0;
+          color: #777;
+      }
+  
+      .card-details button {
+          margin-top: 10px;
+          padding: 8px 16px;
+          background-color: #007bff;
+          color: #fff;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+      }
+  
+      .card-details button:hover {
+          background-color: #0056b3;
+      }
+  
+      .copy__nav {
+          text-align: center;
+      }
+  
+      .logo__img {
+        width: 100px; /* Adjust as needed */
+    }
+      .copy__nav-list {
+          list-style-type: none;
+          padding: 0;
+          margin: 0;
+      }
+  
+      .copy__nav-item {
+          display: inline-block;
+          margin-right: 10px;
+      }
+  
+      .copy__nav-link {
+          text-decoration: none;
+          color: #777;
+      }
+  
+      .copy__nav-link:hover {
+          text-decoration: underline;
+      }
+  
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+          .menu__list {
+              flex-direction: column;
+              align-items: flex-start;
+          }
+          .menu__list-item {
+              margin-bottom: 10px;
+          }
+          .footer__menu {
+              flex-direction: column;
+              align-items: center;
+          }
+          .footer__menu-list {
+              text-align: center;
+          }
+          .footer__menu-item {
+              margin-bottom: 8px;
+          }
+      }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div id="loginModal" class="modal">
+      <div class="modal-content">
+          <span class="close" onclick="closeModal('loginModal')">&times;</span>
+          <h2>Login</h2>
+          <form id="loginForm" onsubmit="handleLogin(event)">
+              <label for="login-email">Email:</label>
+              <input type="email" id="login-email" name="email" required>
+              <label for="login-password">Password:</label>
+              <input type="password" id="login-password" name="password" required>
+              <button type="submit">Login</button>
+          </form>
+      </div>
+  </div>
+
+  <!-- Register Modal -->
+  <div id="registerModal" class="modal">
+      <div class="modal-content">
+          <span class="close" onclick="closeModal('registerModal')">&times;</span>
+          <h2>Register</h2>
+          <form id="registerForm" onsubmit="handleRegister(event)">
+              <label for="reg-email">Email:</label>
+              <input type="email" id="reg-email" name="email" required>
+              <label for="reg-password">Password:</label>
+              <input type="password" id="reg-password" name="password" required>
+              <button type="submit">Register</button>
+          </form>
+      </div>
+  </div>
+      <header class="header">
+          <div class="container">
+            <div class="header__inner">
+              <a href="index.html" class="logo">
+                <img src="images/logo.svg" alt="" class="logo__img">
+              </a>
+              <nav class="menu">
+                <ul class="menu__list">
+                    <li class="menu__list-item"><a href="new-cars.html" class="menu__list-link" onclick="fetchCars('Sedan')">NEW CARS</a></li>
+                    <li class="menu__list-item"><a href="contacts.html" class="menu__list-link">CONTACT US</a></li>
+                    <li class="menu__list-item"><a href="favorites.html" class="menu__list-link">FAVORITES</a></li>
+                    <li class="menu__list-item">
+                      <a href="#" class="menu__list-link" onclick="toggleLogin()">
+                          <span id="login-btn">Login</span>
+                      </a>
+                  </li>
+                  
+                    <li class="menu__list-item"><a href="#" class="menu__list-link" onclick="openModal('registerModal')">REGISTER</a></li>
+                </ul>
+            </nav>
+            </div>
+          </div>
+      </header>
+      <main class="main">
+        <section class="favorites">
+          <div class="container">
+            <h2 class="section-title">Your Favorite Cars</h2>
+            <div class="favorites__content" id="favorites-content"></div>
+          </div>
+        </section>
+      </main>
+      <footer class="footer">
+        <div class="container">
+          <nav class="footer__menu">
+            <ul class="footer__menu-list"><li class="footer__menu-item"><p class="footer__menu-title">Products</p></li>
+            <li class="footer__menu-item"><a href="#" class="footer__menu-link">Used</a></li>
+            <li class="footer__menu-item"><a href="#" class="footer__menu-link">New</a></li>
+            <li class="footer__menu-item"><a href="#" class="footer__menu-link">Sell your car</a></li></ul>
+            <ul class="footer__menu-list"><li class="footer__menu-item"><p class="footer__menu-title">Resources</p></li>
+            <li class="footer__menu-item"><a href="#" class="footer__menu-link">Blog</a></li>
+            <li class="footer__menu-item"><a href="#" class="footer__menu-link">FAQ</a></li>
+            <li class="footer__menu-item"><a href="#" class="footer__menu-link">Contact us</a></li></ul>
+            <ul class="footer__menu-list"><li class="footer__menu-item"><p class="footer__menu-title">Work With TrueCar</p></li>
+            <li class="footer__menu-item"><a href="#" class="footer__menu-link">Dealers</a></li>
+            <li class="footer__menu-item"><a href="#" class="footer__menu-link">Partners</a></li>
+            </ul>
+            <ul class="footer__menu-list"><li class="footer__menu-item"><p class="footer__menu-title">About</p></li>
+            <li class="footer__menu-item"><a href="#" class="footer__menu-link">About us</a></li>
+            <li class="footer__menu-item"><a href="#" class="footer__menu-link">Team</a></li>
+            <li class="footer__menu-item"><a href="#" class="footer__menu-link">Careers</a></li></ul>
+          </nav>
+          <ul class="app">
+            <li class="app__item">
+              <a href="#" class="app__item-link">
+                <img class="app__item-img" src="images/appstore.svg" alt="">
+              </a>
+            </li>
+            <li class="app__item">
+              <a href="#" class="app__item-link">
+                <img class="app__item-img" src="images/googleplay.svg" alt="">
+              </a>
+            </li>
+          </ul>
+          <div class="footer__copy">
+            <p class="footer__copy-text">
+              For questions about the TrueCar Auto Buying Service please call 1-888-878-3227.
+Certified Dealers are contractually obligated by TrueCar to meet certain customer service requirements and complete the TrueCar Dealer Certification Program.
+            </p>
+            <p class="footer__copy-text">
+              TrueCar does not broker, sell, or lease motor vehicles. Unless otherwise noted, all vehicles shown on this website are offered for sale by licensed motor vehicle dealers. All vehicles are subject to prior sale. By accessing this website, you agree to the TrueCar Terms of Service and Privacy Policy.
+            </p>
+          </div>
+          <nav class="copy__nav">
+            <ul class="copy__nav-list">
+              <li class="copy__nav-item"><a href="#" class="copy__nav-link">Terms of Service</a></li>
+              <li class="copy__nav-item"><a href="#" class="copy__nav-link">Privacy Policy</a></li>
+              <li class="copy__nav-item"><a href="#" class="copy__nav-link">Do Not Sell My Personal Information</a></li>
+            </ul>
+          </nav>
+        </div>
+      </footer>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async function() {
+        await fetchFavorites();
+    });
+
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+    async function fetchFavorites() {
+      const email = getCookie('email');
+      if (!email) {
+        alert('You need to be logged in to view your favorite cars.');
+        return;
+      }
+
+      try {
+        const response = await fetch('http://127.0.0.1:5000/favorites', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email })
+        });
+
+        if (response.ok) {
+          const favorites = await response.json();
+
+          const contentContainer = document.getElementById('favorites-content');
+          contentContainer.innerHTML = ''; // Clear existing content
+
+          favorites.forEach(car => {
+            const card = createCard(car);
+            contentContainer.appendChild(card);
+          });
+        } else {
+          console.error('Error fetching favorite cars:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Error fetching favorite cars:', error);
+      }
+    }
+
+    function createCard(car) {
+      const card = document.createElement('div');
+      card.className = 'card';
+
+      const cardImage = document.createElement('img');
+      cardImage.src = car.img_url;
+      cardImage.alt = `${car.name} ${car.type}`;
+      card.appendChild(cardImage);
+
+      const cardDetails = document.createElement('div');
+      cardDetails.className = 'card-details';
+
+      const carTitle = document.createElement('h3');
+      carTitle.textContent = `${car.name} ${car.type}`;
+      cardDetails.appendChild(carTitle);
+
+      const carPrice = document.createElement('p');
+      carPrice.textContent = `Price: $${car.cost}`;
+      cardDetails.appendChild(carPrice);
+
+      const removeButton = document.createElement('button');
+      removeButton.textContent = 'Remove from Favorites';
+      removeButton.addEventListener('click', () => removeFavorite(car._id.$oid, card));
+      cardDetails.appendChild(removeButton);
+
+      card.appendChild(cardDetails);
+
+      return card;
+    }
+
+    async function removeFavorite(carId, card) {
+      const email = getCookie('email');
+      if (!email) {
+        alert('You need to be logged in to remove a favorite car.');
+        return;
+      }
+
+      try {
+        const response = await fetch('http://127.0.0.1:5000/delete-favorite', {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, car_id: carId })
+        });
+
+        if (response.ok) {
+          card.remove(); // Remove the card from the DOM
+          alert('Car removed from favorites');
+        } else {
+          console.error('Error removing favorite car:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Error removing favorite car:', error);
+      }
+    }
+    // Функция для обновления текста кнопки Login/Logout
+
+
+        // Функция для открытия модального окна
+        const openModal = (modalId) => {
+            document.getElementById(modalId).style.display = 'block';
+            // Проверка наличия токена в куках и обновление текста кнопки Login/Logout
+            updateLoginButtonText();
+        };
+
+        // Функция для закрытия модального окна
+        const closeModal = (modalId) => {
+            document.getElementById(modalId).style.display = 'none';
+        };
+
+        // Функция для обработки логина пользователя
+        const handleLogin = async (event) => {
+            event.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+
+            try {
+                const response = await fetch('http://localhost:5000/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    alert(result.message);
+                    // Сохранение токена и email в куках
+                    document.cookie = `token=${result.token}; path=/`;
+                    document.cookie = `email=${email}; path=/`;
+                    // Обновление текста кнопки на Logout и закрытие модального окна
+                    updateLoginButtonText();
+                    closeModal('loginModal');
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            }
+        };
+
+        // Функция для обработки регистрации пользователя
+        const handleRegister = async (event) => {
+            event.preventDefault();
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+
+            try {
+                const response = await fetch('http://localhost:5000/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    // Обработка успешной регистрации: вывод сообщения и закрытие модального окна
+                    alert(result.message);
+                    closeModal('registerModal');
+                } else {
+                    // Вывод сообщения об ошибке при регистрации
+                    alert(result.message);
+                }
+            } catch (error) {
+                // Вывод сообщения об ошибке в консоль и пользователю
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            }
+        };
+
+        // Функция для получения значения из куки
+        const getCookieValue = (name) => {
+            const cookies = document.cookie.split('; ');
+            for (const cookie of cookies) {
+                const [cookieName, cookieValue] = cookie.split('=');
+                if (cookieName === name) {
+                    return cookieValue;
+                }
+            }
+            return null;
+        };
+
+        // Функция для обновления текста кнопки Login/Logout
+        const updateLoginButtonText = () => {
+          const token = getCookieValue('token');
+          const loginBtn = document.getElementById('login-btn');
+          const userEmail = getCookieValue('email'); // Получаем email из куки
+
+          if (token) {
+              // Если есть токен, значит пользователь залогинен
+              loginBtn.innerText = userEmail ? userEmail : 'User'; // Показываем email или "User", если email не найден
+          } else {
+              loginBtn.innerText = 'Login'; // Если нет токена, кнопка должна показывать "Login"
+          }
+      };
+
+        // Функция для переключения состояния входа/выхода
+        const toggleLogin = () => {
+            const token = getCookieValue('token');
+            if (token) {
+                handleLogout();
+            } else {
+                openModal('loginModal');
+            }
+        };
+
+        // Функция для обработки выхода пользователя
+        const handleLogout = () => {
+            document.cookie = 'token=; Max-Age=-1; path=/';
+            document.cookie = 'email=; Max-Age=-1; path=/';
+            updateLoginButtonText();
+        };
+
+        // Функция для получения списка машин
+        const fetchCars = async (type) => {
+            try {
+                const response = await fetch(`http://localhost:5000/cars?type=${type}`);
+                const cars = await response.json();
+                console.log(cars);
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        };
+
+        
+
+        // Инициализация Swiper для слайдера
+        const swiper = new Swiper('.swiper', {
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+            autoplay: {
+                delay: 2500,
+                disableOnInteraction: false,
+            },
+        });
+
+        // Вызов функции для обновления текста кнопки при загрузке страницы
+        window.onload = () => {
+            updateLoginButtonText();
+        };
+  </script>
+</body>
+</html>

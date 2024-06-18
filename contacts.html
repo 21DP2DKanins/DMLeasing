@@ -8,22 +8,98 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <style>
+      /* Стили для формы */
+.form {
+  margin-top: 20px; /* Отступ сверху */
+  background-color: #f2f2f2; /* Цвет фона формы */
+  padding: 20px; /* Внутренний отступ */
+  border-radius: 8px; /* Закругление углов */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Тень */
+}
+
+.form__input,
+.form__textarea {
+  width: 100%; /* Ширина полей ввода */
+  padding: 10px; /* Внутренний отступ в полях ввода */
+  margin-bottom: 10px; /* Отступ между полями */
+  border: 1px solid #ccc; /* Обводка полей */
+  border-radius: 4px; /* Закругление углов полей */
+  font-size: 16px; /* Размер шрифта */
+}
+
+.form__textarea {
+  height: 150px; /* Высота текстового поля */
+}
+
+.form__btn {
+  background-color: #4CAF50; /* Цвет фона кнопки */
+  color: white; /* Цвет текста кнопки */
+  border: none; /* Убираем границу кнопки */
+  padding: 12px 20px; /* Внутренний отступ кнопки */
+  font-size: 16px; /* Размер шрифта кнопки */
+  cursor: pointer; /* Курсор при наведении */
+  border-radius: 4px; /* Закругление углов */
+}
+
+.form__btn:hover {
+  background-color: #45a049; /* Цвет фона кнопки при наведении */
+}
+
+    </style>
 </head>
 <body>
     
   <div class="wrapper">
+    <div id="loginModal" class="modal">
+      <div class="modal-content">
+          <span class="close" onclick="closeModal('loginModal')">&times;</span>
+          <h2>Login</h2>
+          <form id="loginForm" onsubmit="handleLogin(event)">
+              <label for="login-email">Email:</label>
+              <input type="email" id="login-email" name="email" required>
+              <label for="login-password">Password:</label>
+              <input type="password" id="login-password" name="password" required>
+              <button type="submit">Login</button>
+          </form>
+      </div>
+  </div>
+
+  <!-- Register Modal -->
+  <div id="registerModal" class="modal">
+      <div class="modal-content">
+          <span class="close" onclick="closeModal('registerModal')">&times;</span>
+          <h2>Register</h2>
+          <form id="registerForm" onsubmit="handleRegister(event)">
+              <label for="reg-email">Email:</label>
+              <input type="email" id="reg-email" name="email" required>
+              <label for="reg-password">Password:</label>
+              <input type="password" id="reg-password" name="password" required>
+              <button type="submit">Register</button>
+          </form>
+      </div>
+  </div>
+
       <header class="header">
           <div class="container">
             <div class="header__inner">
               <a href="index.html" class="logo">
                 <img src="images/logo.svg" alt="" class="logo__img">
               </a>
-              <nav class="menu">
-                <ul class="menu__list">
-                  <li class="menu__list-item"><a href="new-cars.html" class="menu__list-link">NEW CARS</a></li>
-                  <li class="menu__list-item"><a href="#" class="menu__list-link menu__list-link--active">CONTACT US</a></li>
-                </ul>
-              </nav>
+                    <nav class="menu">
+                        <ul class="menu__list">
+                            <li class="menu__list-item"><a href="new-cars.html" class="menu__list-link" onclick="fetchCars('Sedan')">NEW CARS</a></li>
+                            <li class="menu__list-item"><a href="contacts.html" class="menu__list-link">CONTACT US</a></li>
+                            <li class="menu__list-item"><a href="favorites.html" class="menu__list-link">FAVORITES</a></li>
+                            <li class="menu__list-item">
+                              <a href="#" class="menu__list-link" onclick="toggleLogin()">
+                                  <span id="login-btn">Login</span>
+                              </a>
+                          </li>
+                          
+                            <li class="menu__list-item"><a href="#" class="menu__list-link" onclick="openModal('registerModal')">REGISTER</a></li>
+                        </ul>
+                    </nav>
             </div>
           </div>
       </header>
@@ -158,8 +234,56 @@ Certified Dealers are contractually obligated by TrueCar to meet certain custome
             alert("Error submitting form.");
         });
     });
-</script>
+    document.getElementById('contactForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Предотвращаем отправку формы по умолчанию
 
+    // Получаем данные из формы
+    var name = document.getElementById('name').value.trim();
+    var email = document.getElementById('email').value.trim();
+    var message = document.getElementById('message').value.trim();
+
+    // Проверяем, что все поля заполнены
+    if (name === '' || email === '' || message === '') {
+        alert("Please fill in all fields."); // Показываем сообщение об ошибке
+        return; // Прерываем отправку формы
+    }
+
+    // Формируем данные формы для отправки на сервер
+    var formData = {
+        name: name,
+        email: email,
+        message: message
+    };
+
+    // Отправляем данные формы в JSON на бэкенд
+    fetch('http://127.0.0.1:5000/contact', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(function(response) {
+        // Обрабатываем ответ сервера
+        if (response.ok) {
+            // Если ответ успешен, выводим сообщение об успешной отправке
+
+            // После успешной отправки формы, перезагружаем страницу
+            window.location.reload();
+        } else {
+            // В противном случае выводим сообщение об ошибке
+            alert("Error submitting form.");
+        }
+    })
+    .catch(function(error) {
+        // Обрабатываем ошибки при отправке запроса
+        console.error('Error:', error);
+        alert("Error submitting form.");
+    });
+});
+
+</script>
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
 </body>
 </html>

@@ -16,6 +16,28 @@ const swiper = new Swiper(".swiper", {
     element.addEventListener('click', open);
   });
 
+    // Function to open modal
+function openModal(modalId) {
+  var modal = document.getElementById(modalId);
+  modal.style.display = "block";
+}
+
+// Function to close modal
+function closeModal(modalId) {
+  var modal = document.getElementById(modalId);
+  modal.style.display = "none";
+}
+
+// Close modal if user clicks outside of it
+window.onclick = function(event) {
+  var modals = document.getElementsByClassName('modal');
+  for (var i = 0; i < modals.length; i++) {
+    if (event.target == modals[i]) {
+      modals[i].style.display = "none";
+    }
+  }
+}
+
   function open(evt) {
     const tabTarget = evt.currentTarget;
     const tabTargetIndex = Array.from(tabItem).indexOf(tabTarget);
@@ -30,5 +52,7 @@ const swiper = new Swiper(".swiper", {
     tabTarget.classList.add('tabs__btn-item--active');
     tabContent[tabTargetIndex].classList.add('tabs__content-item--active');
 
+
+    
 }
 

@@ -30,19 +30,24 @@
         <section class="choose">
           <div class="container">
             <h2 class="section-title">Choose your car</h2>
+            <div class="search">
+              <input type="text" id="search-make" placeholder="Make" class="search__input">
+              <input type="number" id="search-price" placeholder="Starting Price" class="search__input">
+              <input type="number" id="search-year" placeholder="Year" class="search__input">
+              <button onclick="searchCars()" class="search__button">Search</button>
+            </div>
             <div class="tabs">
               <div class="tabs__btn">
-                <button class="tabs__btn-item " data-button="content-1" onclick="fetchCars('Sedan')">Sedan</button>
-                <button class="tabs__btn-item " data-button="content-2" onclick="fetchCars('Electric')">Electric</button>
-                <button class="tabs__btn-item " data-button="content-3" onclick="fetchCars('SUV')">SUV</button>
-                <button class="tabs__btn-item " data-button="content-4" onclick="fetchCars('Sports')">Sports</button>
+                <button class="tabs__btn-item" data-button="content-1" onclick="fetchCars('Sedan')">Sedan</button>
+                <button class="tabs__btn-item" data-button="content-2" onclick="fetchCars('Electric')">Electric</button>
+                <button class="tabs__btn-item" data-button="content-3" onclick="fetchCars('SUV')">SUV</button>
+                <button class="tabs__btn-item" data-button="content-4" onclick="fetchCars('Sports')">Sports</button>
               </div>
               <div class="tabs__content">
-                <div class="tabs__content-item tabs__content-item--active" id="content-1">
-                </div>
-                <div class="tabs__content-item" id="content-2">2</div>
-                <div class="tabs__content-item" id="content-3">3</div>
-                <div class="tabs__content-item" id="content-4">4</div>
+                <div class="tabs__content-item tabs__content-item--active" id="content-1"></div>
+                <div class="tabs__content-item" id="content-2"></div>
+                <div class="tabs__content-item" id="content-3"></div>
+                <div class="tabs__content-item" id="content-4"></div>
               </div>
             </div>
           </div>
@@ -68,22 +73,29 @@
       <footer class="footer">
         <div class="container">
           <nav class="footer__menu">
-            <ul class="footer__menu-list"><li class="footer__menu-item"><p class="footer__menu-title">Products</p></li>
-            <li class="footer__menu-item"><a href="#" class="footer__menu-link">Used</a></li>
-            <li class="footer__menu-item"><a href="#" class="footer__menu-link">New</a></li>
-            <li class="footer__menu-item"><a href="#" class="footer__menu-link">Sell your car</a></li></ul>
-            <ul class="footer__menu-list"><li class="footer__menu-item"><p class="footer__menu-title">Resources</p></li>
-            <li class="footer__menu-item"><a href="#" class="footer__menu-link">Blog</a></li>
-            <li class="footer__menu-item"><a href="#" class="footer__menu-link">FAQ</a></li>
-            <li class="footer__menu-item"><a href="#" class="footer__menu-link">Contact us</a></li></ul>
-            <ul class="footer__menu-list"><li class="footer__menu-item"><p class="footer__menu-title">Work With TrueCar</p></li>
-            <li class="footer__menu-item"><a href="#" class="footer__menu-link">Dealers</a></li>
-            <li class="footer__menu-item"><a href="#" class="footer__menu-link">Partners</a></li>
+            <ul class="footer__menu-list">
+              <li class="footer__menu-item"><p class="footer__menu-title">Products</p></li>
+              <li class="footer__menu-item"><a href="#" class="footer__menu-link">Used</a></li>
+              <li class="footer__menu-item"><a href="#" class="footer__menu-link">New</a></li>
+              <li class="footer__menu-item"><a href="#" class="footer__menu-link">Sell your car</a></li>
             </ul>
-            <ul class="footer__menu-list"><li class="footer__menu-item"><p class="footer__menu-title">About</p></li>
-            <li class="footer__menu-item"><a href="#" class="footer__menu-link">About us</a></li>
-            <li class="footer__menu-item"><a href="#" class="footer__menu-link">Team</a></li>
-            <li class="footer__menu-item"><a href="#" class="footer__menu-link">Careers</a></li></ul>
+            <ul class="footer__menu-list">
+              <li class="footer__menu-item"><p class="footer__menu-title">Resources</p></li>
+              <li class="footer__menu-item"><a href="#" class="footer__menu-link">Blog</a></li>
+              <li class="footer__menu-item"><a href="#" class="footer__menu-link">FAQ</a></li>
+              <li class="footer__menu-item"><a href="#" class="footer__menu-link">Contact us</a></li>
+            </ul>
+            <ul class="footer__menu-list">
+              <li class="footer__menu-item"><p class="footer__menu-title">Work With TrueCar</p></li>
+              <li class="footer__menu-item"><a href="#" class="footer__menu-link">Dealers</a></li>
+              <li class="footer__menu-item"><a href="#" class="footer__menu-link">Partners</a></li>
+            </ul>
+            <ul class="footer__menu-list">
+              <li class="footer__menu-item"><p class="footer__menu-title">About</p></li>
+              <li class="footer__menu-item"><a href="#" class="footer__menu-link">About us</a></li>
+              <li class="footer__menu-item"><a href="#" class="footer__menu-link">Team</a></li>
+              <li class="footer__menu-item"><a href="#" class="footer__menu-link">Careers</a></li>
+            </ul>
           </nav>
           <ul class="app">
             <li class="app__item">
@@ -117,20 +129,23 @@ Certified Dealers are contractually obligated by TrueCar to meet certain custome
       </footer>
   </div>
   <script>
+    document.addEventListener('DOMContentLoaded', async function() {
+        await fetchCars('Sedan');
+    });
 
-document.addEventListener('DOMContentLoaded', async function() {
-    // Здесь вызываем fetchCars для каждого типа машин
-    await fetchCars('Sedan');
-
-});
-
-    async function fetchCars(type) {
+    async function fetchCars(type, make = '', price = '', year = '') {
       try {
-        const response = await fetch(`http://127.0.0.1:5000/cars?type=${type}`);
+        const url = new URL('http://127.0.0.1:5000/cars');
+        url.searchParams.append('type', type);
+        if (make) url.searchParams.append('make', make);
+        if (price) url.searchParams.append('price', price);
+        if (year) url.searchParams.append('year', year);
+
+        const response = await fetch(url);
         const cars = await response.json();
 
         const contentContainer = document.getElementById('content-1');
-        contentContainer.innerHTML = ''; // Clear existing content
+        contentContainer.innerHTML = '';
 
         cars.forEach(car => {
           const card = createCard(car);
@@ -140,15 +155,21 @@ document.addEventListener('DOMContentLoaded', async function() {
         console.error('Error fetching car data:', error);
       }
     }
-    
-    // Function to create a card element
+
+    function searchCars() {
+      const make = document.getElementById('search-make').value;
+      const price = document.getElementById('search-price').value;
+      const year = document.getElementById('search-year').value;
+      fetchCars('Sedan', make, price, year);
+    }
+
     function createCard(car) {
       const card = document.createElement('div');
       card.classList.add('card');
 
       const cardImage = document.createElement('img');
       cardImage.classList.add('card__img');
-      cardImage.src = car.img_url; // Using image URL from the car data
+      cardImage.src = car.img_url;
       cardImage.alt = car.name;
 
       const cardContent = document.createElement('div');
@@ -170,17 +191,11 @@ document.addEventListener('DOMContentLoaded', async function() {
       cardContent.appendChild(cardText);
       cardContent.appendChild(cardPrice);
 
-      const cardLink = document.createElement('a');
-      cardLink.classList.add('card__link');
-      cardLink.href = '#';
-
       card.appendChild(cardImage);
       card.appendChild(cardContent);
-      card.appendChild(cardLink);
 
       return card;
     }
   </script>
-  
 </body>
 </html>

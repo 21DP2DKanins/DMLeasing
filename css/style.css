@@ -76,15 +76,15 @@ body{
   
 }
 
-/* Стили для кнопки Login в меню */
 
 
 
 
-/* Стили для кнопки Register в меню */
+
+
 .menu__list-item a[href="#registerModal"] {
   display: inline-block;
-  padding: 12px 24px; /* Немного большие отступы для более выразительного вида */
+  padding: 12px 24px; 
   background-color: #28a745;
   color: #fff;
   text-decoration: none;
@@ -658,3 +658,5 @@ button[type="submit"] {
 button[type="submit"]:hover {
   background-color: #45a049;
 }
+
+

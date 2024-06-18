@@ -52,10 +52,12 @@
                     <li class="menu__list-item"><a href="favorites.html" class="menu__list-link">FAVORITES</a></li>
                     <li class="menu__list-item">
                       <a href="#" class="menu__list-link" onclick="toggleLogin()">
-                          <span id="login-btn">Login</span>
+                        <span id="login-btn">Login</span>
                       </a>
-                  </li>
-                  
+                    </li>
+                    <li class="menu__list-link">
+                      <span id="login-status" class="menu__list-link"></span>
+                    </li>
                     <li class="menu__list-item"><a href="#" class="menu__list-link" onclick="openModal('registerModal')">REGISTER</a></li>
                 </ul>
             </nav>
@@ -156,105 +158,171 @@ Certified Dealers are contractually obligated by TrueCar to meet certain custome
   
   <script>
     document.addEventListener('DOMContentLoaded', async function() {
-      // Здесь вызываем fetchCars для каждого типа машин
       await fetchCars('Sedan');
+      updateLoginStatus();
     });
-
+  
     function getCookie(name) {
       const value = `; ${document.cookie}`;
       const parts = value.split(`; ${name}=`);
       if (parts.length === 2) return parts.pop().split(';').shift();
     }
-
-    async function fetchCars(type) {
-  try {
-    const response = await fetch(`http://127.0.0.1:5000/cars?type=${type}`);
-    const cars = await response.json();
-
-    const contentContainer = document.getElementById('content-1');
-    contentContainer.innerHTML = ''; // Clear existing content
-
-    cars.forEach(car => {
-      const card = createCard(car);
-      contentContainer.appendChild(card);
-    });
-  } catch (error) {
-    console.error('Error fetching car data:', error);
-  }
-}
-
-function createCard(car) {
-  const card = document.createElement('div');
-  card.classList.add('card');
-
-  const cardImage = document.createElement('img');
-  cardImage.classList.add('card__img');
-  cardImage.src = car.img_url; // Using image URL from the car data
-  cardImage.alt = car.name;
-
-  const cardContent = document.createElement('div');
-  cardContent.classList.add('card__content');
-
-  const cardTitle = document.createElement('h4');
-  cardTitle.classList.add('card__title');
-  cardTitle.textContent = car.name;
-
-  const cardText = document.createElement('p');
-  cardText.classList.add('card__text');
-  cardText.textContent = `Starting from $${car.cost}`;
-
-  const cardPrice = document.createElement('p');
-  cardPrice.classList.add('card__price');
-  cardPrice.textContent = `$${car.costPerMonth}/mo`;
-
-  const likeButton = document.createElement('button');
-  likeButton.classList.add('like-button');
-  likeButton.textContent = '♥';
-  likeButton.onclick = () => addToFavorites(car._id.$oid); // Pass _id.$oid to addToFavorites
-
-  cardContent.appendChild(cardTitle);
-  cardContent.appendChild(cardText);
-  cardContent.appendChild(cardPrice);
-  cardContent.appendChild(likeButton);
-
-  const cardLink = document.createElement('a');
-  cardLink.classList.add('card__link');
-  cardLink.href = '#';
-
-  card.appendChild(cardImage);
-  card.appendChild(cardContent);
-  card.appendChild(cardLink);
-
-  return card;
-}
-
-async function addToFavorites(carId) {
-  const email = getCookie('email'); // Получаем email из куки или localStorage
-  if (!email) {
-    alert('You need to be logged in to like a car.');
-    return;
-  }
-
-  try {
-    const response = await fetch('http://127.0.0.1:5000/add-favorite', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ email, car_id: carId })
-    });
-
-    if (response.ok) {
-      alert('Car added to favorites');
-    } else {
-      console.error('Error liking the car:', response.statusText);
-    }
-  } catch (error) {
-    console.error('Error liking the car:', error);
-  }
-}
-
   
+    function setCookie(name, value, days) {
+      const d = new Date();
+      d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+      const expires = `expires=${d.toUTCString()}`;
+      document.cookie = `${name}=${value};${expires};path=/`;
+    }
+  
+    async function fetchCars(type) {
+      try {
+        const response = await fetch(`http://127.0.0.1:5000/cars?type=${type}`);
+        const cars = await response.json();
+        const contentContainer = document.getElementById('content-1');
+        contentContainer.innerHTML = ''; // Clear existing content
+  
+        cars.forEach(car => {
+          const card = createCard(car);
+          contentContainer.appendChild(card);
+        });
+      } catch (error) {
+        console.error('Error fetching car data:', error);
+      }
+    }
+  
+    function createCard(car) {
+      const card = document.createElement('div');
+      card.classList.add('card');
+  
+      const cardImage = document.createElement('img');
+      cardImage.classList.add('card__img');
+      cardImage.src = car.img_url; // Using image URL from the car data
+      cardImage.alt = car.name;
+  
+      const cardContent = document.createElement('div');
+      cardContent.classList.add('card__content');
+  
+      const cardTitle = document.createElement('h4');
+      cardTitle.classList.add('card__title');
+      cardTitle.textContent = car.name;
+  
+      const cardText = document.createElement('p');
+      cardText.classList.add('card__text');
+      cardText.textContent = `Starting from $${car.cost}`;
+  
+      const cardPrice = document.createElement('p');
+      cardPrice.classList.add('card__price');
+      cardPrice.textContent = `$${car.costPerMonth}/mo`;
+  
+      const likeButton = document.createElement('button');
+      likeButton.classList.add('like-button');
+      likeButton.textContent = '♥';
+      likeButton.onclick = () => addToFavorites(car._id.$oid);
+  
+      cardContent.appendChild(cardTitle);
+      cardContent.appendChild(cardText);
+      cardContent.appendChild(cardPrice);
+      cardContent.appendChild(likeButton);
+  
+      const cardLink = document.createElement('a');
+      cardLink.classList.add('card__link');
+      cardLink.href = '#';
+  
+      card.appendChild(cardImage);
+      card.appendChild(cardContent);
+      card.appendChild(cardLink);
+  
+      return card;
+    }
+  
+    async function addToFavorites(carId) {
+      const email = getCookie('email');
+      if (!email) {
+        alert('You need to be logged in to like a car.');
+        return;
+      }
+  
+      try {
+        const response = await fetch('http://127.0.0.1:5000/add-favorite', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, car_id: carId })
+        });
+  
+        if (response.ok) {
+          alert('Car added to favorites');
+        } else {
+          console.error('Error liking the car:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Error liking the car:', error);
+      }
+    }
+  
+    async function handleLogin(event) {
+      event.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+  
+      try {
+        const response = await fetch('http://127.0.0.1:5000/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
+        });
+  
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success) {
+            setCookie('email', email, 7); // Set cookie to expire in 7 days
+            updateLoginStatus();
+            closeModal('loginModal');
+          } else {
+            alert('Invalid login credentials');
+          }
+        } else {
+          console.error('Error logging in:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Error logging in:', error);
+      }
+    }
+  
+    function updateLoginStatus() {
+      const email = getCookie('email');
+      const loginBtn = document.getElementById('login-btn');
+      const loginStatus = document.getElementById('login-status');
+  
+      if (email) {
+        loginBtn.style.display = 'none';
+        loginStatus.innerHTML = `${email}`;
+      } else {
+        loginBtn.style.display = 'inline';
+        loginStatus.innerHTML = '';
+      }
+    }
+  
+    function closeModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
+    }
+  
+    function openModal(modalId) {
+      document.getElementById(modalId).style.display = 'block';
+    }
+  
+    function toggleLogin() {
+      const email = getCookie('email');
+      if (email) {
+        alert('You are already logged in.');
+      } else {
+        openModal('loginModal');
+      }
+    }
   </script>
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
   
